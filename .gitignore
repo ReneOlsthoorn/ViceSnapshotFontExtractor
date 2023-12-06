@@ -2,6 +2,8 @@ log.txt
 generated_pdf/
 # Prerequisites
 *.d
+*.png
+*.vsf
 
 # Compiled Object files
 *.slo

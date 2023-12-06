@@ -2,8 +2,8 @@
 using ConvertC64Font;
 using ViceSnapshotLoader;
 
-string inputFilename = "c:\\dotnet\\ConvertC64Font\\snapshot.vsf";
-string outputFilename = "c:\\dotnet\\ConvertC64Font\\newFont.png";
+string inputFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\snapshot.vsf";
+string outputFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\snapshot_font.png";
 
 C64DataSilo c64Silo = new ViceSnapshotLoader.C64DataSilo();
 c64Silo.LoadSnapshot(inputFilename);
