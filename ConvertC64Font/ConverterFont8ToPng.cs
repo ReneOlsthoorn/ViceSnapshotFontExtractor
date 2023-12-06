@@ -12,15 +12,18 @@ namespace ConvertC64Font
         Pixel textColor;
         Pixel backColor;
 
-        public ConverterFont8ToPng(byte[] font, string outputFilename) {
-            var builder = PngBuilder.Create(256, 256, false);
+        public ConverterFont8ToPng(byte[] font, string outputFilename, bool totalMemoryFont = false) {
+
+            int height = totalMemoryFont ? 256*32 : 256;
+            var builder = PngBuilder.Create(256, height, false);
             textColor = new Pixel(255, 255, 255);
             backColor = new Pixel(0, 0, 0);
 
             using var memory = new MemoryStream();
 
             int counter = 0;
-            for (int i = 0; i < 2048; i += 8)
+            int bytesToHandle = totalMemoryFont ? 2048 * 32 : 2048;
+            for (int i = 0; i < bytesToHandle; i += 8)
             {
                 byte[] data = new byte[8] { (byte)font[i], (byte)font[i + 1], (byte)font[i + 2], (byte)font[i + 3], (byte)font[i + 4], (byte)font[i + 5], (byte)font[i + 6], (byte)font[i + 7] };
                 SetCharacter(builder, data, counter++);
