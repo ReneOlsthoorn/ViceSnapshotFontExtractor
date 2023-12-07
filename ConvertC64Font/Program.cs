@@ -2,10 +2,10 @@
 using ConvertC64Font;
 using ViceSnapshotLoader;
 
-string inputFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\vice-snapshot.vsf";
-string outputFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\font_.png";
-string totalMemoryFontFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\totalMemory.png";
-string totalMemorySpriteFilename = "c:\\dotnet\\ViceSnapshotFontExtractor\\totalMemorySprite.png";
+string inputFilename = "..\\..\\..\\..\\vice-snapshot.vsf";
+string outputFilename = "..\\..\\..\\..\\font_.png";
+string totalMemoryFontFilename = "..\\..\\..\\..\\totalMemory.png";
+string totalMemorySpriteFilename = "..\\..\\..\\..\\ViceSnapshotFontExtractor\\totalMemorySprite.png";
 
 C64DataSilo c64Silo = new ViceSnapshotLoader.C64DataSilo();
 c64Silo.LoadSnapshot(inputFilename);
