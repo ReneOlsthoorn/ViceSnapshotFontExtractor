@@ -14,7 +14,7 @@ namespace ConvertC64Font
 
         public ConvertMultiColorSpriteToPng(byte[] font, string outputFilename, bool totalMemory = false) {
 
-            int height = totalMemory ? 256*32 : 256;
+            int height = totalMemory ? 256*32 : 16*3*6;
             var builder = PngBuilder.Create(256, height, false);
             textColor = new Pixel(255, 255, 255);
             backColor = new Pixel(0, 0, 0);
@@ -22,22 +22,23 @@ namespace ConvertC64Font
             using var memory = new MemoryStream();
 
             int counter = 0;
-            int bytesToHandle = totalMemory ? 2048 * 32 : 2048;
-            for (int i = 0; i < bytesToHandle; i += 8)
+            int bytesToHandle = totalMemory ? 65536 : 2048;
+            for (int i = 0; i < bytesToHandle; i += 21*3)
             {
-                byte[] data = new byte[8] { (byte)font[i], (byte)font[i + 1], (byte)font[i + 2], (byte)font[i + 3], (byte)font[i + 4], (byte)font[i + 5], (byte)font[i + 6], (byte)font[i + 7] };
-                SetCharacter(builder, data, counter++);
+                byte[] data = new byte[21 * 3];
+                Array.Copy(font, i, data, 0, 21 * 3);
+                SetSprite(builder, data, counter++);
             }
 
             builder.Save(memory);
             File.WriteAllBytes(outputFilename, memory.ToArray());
         }
 
-        void SetCharacter(PngBuilder builder, byte[] data, int position)
+        void SetSprite(PngBuilder builder, byte[] data, int position)
         {
             int x = 0, y = 0;
-            int row = position / 16;
-            int col = position % 16;
+            int row = position / 21*3;
+            int col = position % 6;
             x = col * 16;
             y = row * 16;
             for (int i = 0; i < 8; i++)
