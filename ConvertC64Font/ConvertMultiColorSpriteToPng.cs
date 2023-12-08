@@ -11,11 +11,15 @@ namespace ConvertC64Font
     public class ConvertMultiColorSpriteToPng
     {
         Pixel[] colors = new Pixel[4];
+        const int bytesPerSprite = 8;           //21*3  
+        const int nrSpritesPerRow = 16;         //6
+        const int nrWidthPixelsPerSprite = 16;  //16*3 : 24 width * 2 pixels for each point
+        const int nrHeightPixelsPerSprite = 16; //21*2 : 21 height * 2 pixels for each point
 
         public ConvertMultiColorSpriteToPng(byte[] font, string outputFilename) {
 
             int height = 256*32;
-            var builder = PngBuilder.Create(24 * 2 * 6, height, false);
+            var builder = PngBuilder.Create(nrWidthPixelsPerSprite * nrSpritesPerRow, height, false);  //24 * 2 * 6
             colors[0] = new Pixel(0, 0, 0);
             colors[1] = new Pixel(255, 0, 0);
             colors[2] = new Pixel(0, 255, 0);
@@ -24,11 +28,11 @@ namespace ConvertC64Font
             using var memory = new MemoryStream();
 
             int counter = 0;
-            int bytesToHandle = 65536-64;
-            for (int i = 0; i < bytesToHandle; i += 21*3)
+            int bytesToHandle = 65536;
+            for (int i = 0; i < bytesToHandle; i += bytesPerSprite)
             {
-                byte[] data = new byte[21 * 3];
-                Array.Copy(font, i, data, 0, 21 * 3);
+                byte[] data = new byte[bytesPerSprite];
+                Array.Copy(font, i, data, 0, bytesPerSprite);
                 SetSprite(builder, data, counter++);
             }
 
@@ -39,10 +43,10 @@ namespace ConvertC64Font
         void SetSprite(PngBuilder builder, byte[] data, int position)
         {
             int x = 0, y = 0;
-            int row = position / 6;
-            int col = position % 6;
-            x = col * 24 * 2;   // 24 width * 2 pixels for each point
-            y = row * 21 * 2;   // 21 height * 2 pixels for each point
+            int row = position / nrSpritesPerRow;
+            int col = position % nrSpritesPerRow;
+            x = col * nrWidthPixelsPerSprite;
+            y = row * nrHeightPixelsPerSprite;
             for (int i = 0; i < 21; i++)
             {
                 SetSpriteRow(builder, new byte[3] { data[i * 3], data[(i * 3) + 1], data[(i * 3) + 2] }, x, y + (i * 2));
