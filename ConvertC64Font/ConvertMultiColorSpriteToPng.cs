@@ -1,6 +1,7 @@
 ﻿using BigGustave;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,20 +10,21 @@ namespace ConvertC64Font
 {
     public class ConvertMultiColorSpriteToPng
     {
-        Pixel textColor;
-        Pixel backColor;
+        Pixel[] colors = new Pixel[4];
 
-        public ConvertMultiColorSpriteToPng(byte[] font, string outputFilename, bool totalMemory = false) {
+        public ConvertMultiColorSpriteToPng(byte[] font, string outputFilename) {
 
-            int height = totalMemory ? 256*32 : 16*3*6;
-            var builder = PngBuilder.Create(256, height, false);
-            textColor = new Pixel(255, 255, 255);
-            backColor = new Pixel(0, 0, 0);
+            int height = 256*32;
+            var builder = PngBuilder.Create(24 * 2 * 6, height, false);
+            colors[0] = new Pixel(0, 0, 0);
+            colors[1] = new Pixel(255, 0, 0);
+            colors[2] = new Pixel(0, 255, 0);
+            colors[3] = new Pixel(255, 255, 255);
 
             using var memory = new MemoryStream();
 
             int counter = 0;
-            int bytesToHandle = totalMemory ? 65536 : 2048;
+            int bytesToHandle = 65536-64;
             for (int i = 0; i < bytesToHandle; i += 21*3)
             {
                 byte[] data = new byte[21 * 3];
@@ -37,34 +39,34 @@ namespace ConvertC64Font
         void SetSprite(PngBuilder builder, byte[] data, int position)
         {
             int x = 0, y = 0;
-            int row = position / 21*3;
+            int row = position / 6;
             int col = position % 6;
-            x = col * 16;
-            y = row * 16;
-            for (int i = 0; i < 8; i++)
+            x = col * 24 * 2;   // 24 width * 2 pixels for each point
+            y = row * 21 * 2;   // 21 height * 2 pixels for each point
+            for (int i = 0; i < 21; i++)
             {
-                SetCharRow(builder, data[i], x, y + (i * 2));
-                SetCharRow(builder, data[i], x, y + ((i * 2) + 1));
+                SetSpriteRow(builder, new byte[3] { data[i * 3], data[(i * 3) + 1], data[(i * 3) + 2] }, x, y + (i * 2));
+                SetSpriteRow(builder, new byte[3] { data[i * 3], data[(i * 3) + 1], data[(i * 3) + 2] }, x, y + ((i * 2) + 1));
             }
         }
 
-        void SetCharRow(PngBuilder builder, byte data, int x, int y)
+        void SetSpriteRow(PngBuilder builder, byte[] data, int x, int y)
         {
             int counter = 0;
-            for (int i = 7; i >= 0; i--)
+            for (int j = 0; j < 3; j++)
             {
-                if (IsBitSet(i, data))
+                for (int i = 3; i >= 0; i--)
                 {
-                    builder.SetPixel(textColor, x + (counter * 2), y);
-                    builder.SetPixel(textColor, x + (counter * 2) + 1, y);
-                }
-                else
-                {
-                    builder.SetPixel(backColor, x + (counter * 2), y);
-                    builder.SetPixel(backColor, x + (counter * 2) + 1, y);
-                }
+                    int firstBit = IsBitSet((i * 2) + 1, data[j]) ? 1 : 0;
+                    int secondBit = IsBitSet(i * 2, data[j]) ? 1 : 0;
 
-                counter++;
+                    int color = (firstBit << 1) + secondBit;
+                    builder.SetPixel(colors[color], x + (counter * 4), y);
+                    builder.SetPixel(colors[color], x + (counter * 4) + 1, y);
+                    builder.SetPixel(colors[color], x + (counter * 4) + 2, y);
+                    builder.SetPixel(colors[color], x + (counter * 4) + 3, y);
+                    counter++;
+                }
             }
         }
 
